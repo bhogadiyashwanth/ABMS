@@ -1,3 +1,3 @@
 # ABMS
 
-<h1> Agent Based Model Simulation to Study Cost Effects of Warehouses under Different Setups </h1>
+<h1> Agent Based Model Simulation to study cost effects of warehouses under different setups </h1>
