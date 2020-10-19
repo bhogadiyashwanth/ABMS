@@ -1,4 +1,4 @@
-to buffer-area
+to draw-buffer-zone
   if mouse-down?
   [
     ask patch mouse-xcor mouse-ycor
@@ -7,6 +7,19 @@ to buffer-area
     ]
   ]
 end
+
+to draw-gate-x         ;; get value of gate from chooserand then store as global variable
+  if mouse-down?
+  [
+    ask patch mouse-xcor mouse-ycor
+    [
+      set pcolor pink
+    ]
+
+  ]
+end
+
+
 
 to eraser
   if mouse-down?
@@ -25,7 +38,6 @@ to setup
   ask patches [
     set pcolor grey - random-float 0.5
   ]
-
 end
 
 @#$#@#$#@
@@ -59,10 +71,10 @@ ticks
 BUTTON
 120
 64
-223
+263
 97
 NIL
-buffer-area
+draw-buffer-zone
 T
 1
 T
@@ -106,6 +118,53 @@ NIL
 NIL
 NIL
 1
+
+CHOOSER
+69
+239
+210
+284
+from-route
+from-route
+"gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
+0
+
+CHOOSER
+292
+243
+433
+288
+to-route
+to-route
+"gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
+0
+
+BUTTON
+80
+348
+190
+381
+NIL
+draw-gate-x
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+279
+340
+450
+385
+currently-drawing-gate
+currently-drawing-gate
+"gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
