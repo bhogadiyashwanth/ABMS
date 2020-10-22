@@ -1,3 +1,9 @@
+breed [gates gate]
+breed [chargers charger]
+
+gates-own [ number ]
+chargers-own [ number ]
+
 to draw-buffer-zone
   if mouse-down?
   [
@@ -11,22 +17,35 @@ end
 to draw-gate-x         ;; get value of gate from chooserand then store as global variable
   if mouse-down?
   [
-    ask patch mouse-xcor mouse-ycor
-    [
-      set pcolor pink
-    ]
+     create-gates 1 [
+       setxy mouse-xcor mouse-ycor
+       set shape "square"
+       set number currently-drawing-gate
+       set color pink
+      ]
+
     stop
   ]
 end
 
 
 
-to eraser
+to patch-eraser
   if mouse-down?
   [
     ask patch mouse-xcor mouse-ycor
     [
       set pcolor grey - random-float 0.5
+    ]
+  ]
+end
+
+to turtle-eraser
+  if mouse-down?
+  [
+    ask turtles-on (patch-set patch mouse-xcor mouse-ycor)
+    [
+      die
     ]
   ]
 end
@@ -40,6 +59,29 @@ to setup
   ]
 end
 
+to draw-sorting-area
+  if mouse-down?
+  [
+    ask patch mouse-xcor mouse-ycor
+    [
+      set pcolor cyan
+    ]
+  ]
+end
+
+to draw-charger-x         ;; get value of gate from chooserand then store as global variable
+  if mouse-down?
+  [
+     create-chargers 1 [
+       setxy mouse-xcor mouse-ycor
+       set shape "square"
+       set number currently-drawing-charger
+       set color blue
+      ]
+
+    stop
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 532
@@ -69,10 +111,10 @@ ticks
 30.0
 
 BUTTON
-120
-64
-263
-97
+44
+33
+186
+70
 NIL
 draw-buffer-zone
 T
@@ -86,10 +128,10 @@ NIL
 1
 
 BUTTON
-240
-131
-306
-164
+243
+82
+309
+115
 NIL
 setup
 NIL
@@ -103,12 +145,12 @@ NIL
 1
 
 BUTTON
-57
-121
-128
-154
+239
+34
+342
+67
 NIL
-eraser
+patch-eraser
 T
 1
 T
@@ -120,30 +162,30 @@ NIL
 1
 
 CHOOSER
-69
-239
-210
-284
+41
+355
+182
+400
 from-route
 from-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
 0
 
 CHOOSER
-292
-243
-433
-288
+270
+352
+411
+397
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-0
+4
 
 BUTTON
-80
-348
-190
-381
+45
+140
+188
+178
 NIL
 draw-gate-x
 T
@@ -157,14 +199,75 @@ NIL
 1
 
 CHOOSER
-279
-340
-450
-385
+242
+135
+413
+180
 currently-drawing-gate
 currently-drawing-gate
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
+2
+
+BUTTON
+44
+86
+186
+124
+NIL
+draw-sorting-area
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+43
+207
+188
+247
+NIL
+draw-charger-x
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+243
+204
+413
+249
+currently-drawing-charger
+currently-drawing-charger
+"charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
 0
+
+BUTTON
+45
+263
+188
+306
+NIL
+turtle-eraser
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
