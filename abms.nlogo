@@ -1,8 +1,15 @@
 breed [gates gate]
 breed [chargers charger]
 
+
 gates-own [ number ]
 chargers-own [ number ]
+
+globals
+[
+  test-variable
+  route-list
+]
 
 to draw-buffer-zone
   if mouse-down?
@@ -27,6 +34,80 @@ to draw-gate-x         ;; get value of gate from chooserand then store as global
     stop
   ]
 end
+
+
+to create-route-from-to
+  let current-route (list from-route (list) to-route)
+  set route-list lput current-route route-list
+end
+
+
+
+to draw-route-from-to
+
+  if mouse-down? [
+    let current-list (list)
+    let current-position -1
+    let changed False
+    ;; my-route = ["gate-1" [] "gate-2"]
+    ;; current-list
+    foreach route-list
+    [
+      [my-route] ->
+      print route-list
+
+      if first my-route = from-route and last my-route = to-route
+      [
+        set current-list item 1 my-route
+        set current-position position my-route route-list
+
+
+        ifelse not empty? current-list
+        [
+
+          if last current-list != (patch mouse-xcor mouse-ycor)
+          [
+            set current-list lput (patch mouse-xcor mouse-ycor) current-list
+            set my-route replace-item 1 my-route current-list
+
+            set current-list my-route
+
+            set changed True
+
+            ask patch mouse-xcor mouse-ycor
+            [
+              set pcolor black
+            ]
+
+          ]
+        ]
+        [
+          set current-list lput (patch mouse-xcor mouse-ycor) current-list
+          set my-route replace-item 1 my-route current-list
+
+          set current-list my-route
+
+          set changed True
+
+          ask patch mouse-xcor mouse-ycor
+          [
+            set pcolor black
+          ]
+
+        ]
+
+      ]
+    ]
+
+    if current-position != -1 and changed
+    [
+      set route-list replace-item current-position route-list current-list
+    ]
+  ]
+end
+
+
+
 
 
 
@@ -57,6 +138,8 @@ to setup
   ask patches [
     set pcolor grey - random-float 0.5
   ]
+
+  set route-list (list)
 end
 
 to draw-sorting-area
@@ -84,13 +167,13 @@ to draw-charger-x         ;; get value of gate from chooserand then store as glo
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-532
-19
-943
-431
+447
+10
+942
+426
 -1
 -1
-12.212121212121213
+4.03
 1
 10
 1
@@ -100,10 +183,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
+-60
+60
+-50
+50
 0
 0
 1
@@ -260,6 +343,40 @@ BUTTON
 NIL
 turtle-eraser
 T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+250
+307
+408
+340
+NIL
+draw-route-from-to
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+247
+261
+413
+294
+NIL
+create-route-from-to
+NIL
 1
 T
 OBSERVER
