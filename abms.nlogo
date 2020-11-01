@@ -2,6 +2,7 @@ breed [gates gate]
 breed [chargers charger]
 breed [agvs agv]
 
+agvs-own [ current-location ] ;;" gate-1 ", " sorting area "
 gates-own [ number ]
 chargers-own [ number ]
 
@@ -54,7 +55,6 @@ to draw-route-from-to
     foreach route-list
     [
       [my-route] ->
-      print route-list
 
       if first my-route = from-route and last my-route = to-route
       [
@@ -116,8 +116,28 @@ to patch-eraser
   [
     ask patch mouse-xcor mouse-ycor
     [
+      if pcolor = black
+      [
+        loop-through-route (patch mouse-xcor mouse-ycor)
+      ]
       set pcolor grey - random-float 0.5
     ]
+  ]
+end
+
+to loop-through-route [ current-patch ]
+  let index 0
+  print length route-list
+  loop [
+    if index = length route-list [ stop ]
+    let path item 1 (item index route-list)
+    print index
+    set path remove current-patch path
+    print path
+    let current-route replace-item 1 (item index route-list) path
+    set route-list replace-item index route-list current-route
+    print route-list
+    set index index + 1
   ]
 end
 
@@ -144,12 +164,12 @@ end
 
 
 to setup-agv
-;  set-default-shape agvs "truck"
+  set-default-shape agvs "truck"
   ask agvs [ die ]
   if count agvs != num_agv[
     ask n-of num_agv (patches with [pcolor = yellow]) [sprout-agvs num_agv]
     ask agvs [
-      set size 6
+      set size 2
       set color blue
     ]
   ]
@@ -157,21 +177,21 @@ to setup-agv
 end
 
 
-to move-agv-test [current-pos, from-route, to-route]
-
+to move-agv-test
+  let from-location "buffer-zone"
+  let to-location "gate-1"
   foreach route-list
   [
     [route] ->
-    if first route = "buffer-zone" [
-
-
+    if first route = from-location and last route = to-location [
+     foreach item 1 route
+      [
+        [path]->
+        ask agvs [ move-to path ]
+        tick
+      ]
     ]
-
-
-
   ]
-
-
 end
 
 to draw-sorting-area
@@ -321,7 +341,7 @@ CHOOSER
 currently-drawing-gate
 currently-drawing-gate
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
-1
+0
 
 BUTTON
 214
@@ -445,6 +465,23 @@ num_agv
 1
 0
 Number
+
+BUTTON
+75
+11
+138
+44
+go
+move-agv-test
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
