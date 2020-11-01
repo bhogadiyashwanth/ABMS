@@ -144,7 +144,7 @@ end
 
 
 to setup-agv
-  set-default-shape agvs "truck"
+;  set-default-shape agvs "truck"
   ask agvs [ die ]
   if count agvs != num_agv[
     ask n-of num_agv (patches with [pcolor = yellow]) [sprout-agvs num_agv]
@@ -153,6 +153,24 @@ to setup-agv
       set color blue
     ]
   ]
+
+end
+
+
+to move-agv-test [current-pos, from-route, to-route]
+
+  foreach route-list
+  [
+    [route] ->
+    if first route = "buffer-zone" [
+
+
+    ]
+
+
+
+  ]
+
 
 end
 
@@ -181,13 +199,13 @@ to draw-charger-x         ;; get value of gate from chooserand then store as glo
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-381
-20
-841
-406
+388
+10
+773
+396
 -1
 -1
-3.74
+11.42424242424243
 1
 10
 1
@@ -197,10 +215,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--60
-60
--50
-50
+-16
+16
+-16
+16
 0
 0
 1
@@ -423,7 +441,7 @@ INPUTBOX
 355
 78
 num_agv
-5.0
+1.0
 1
 0
 Number
