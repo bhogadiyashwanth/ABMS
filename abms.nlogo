@@ -2,7 +2,7 @@ breed [gates gate]
 breed [chargers charger]
 breed [agvs agv]
 
-agvs-own [ current-location ] ;;" gate-1 ", " sorting area "
+agvs-own [ current-location charge ] ;;" gate-1 ", " sorting area "
 gates-own [ number ]
 chargers-own [ number ]
 
@@ -55,50 +55,36 @@ to draw-route-from-to
     foreach route-list
     [
       [my-route] ->
-
       if first my-route = from-route and last my-route = to-route
       [
         set current-list item 1 my-route
         set current-position position my-route route-list
-
-
         ifelse not empty? current-list
         [
-
           if last current-list != (patch mouse-xcor mouse-ycor)
           [
             set current-list lput (patch mouse-xcor mouse-ycor) current-list
             set my-route replace-item 1 my-route current-list
-
             set current-list my-route
-
             set changed True
-
             ask patch mouse-xcor mouse-ycor
             [
               set pcolor black
             ]
-
           ]
         ]
         [
           set current-list lput (patch mouse-xcor mouse-ycor) current-list
           set my-route replace-item 1 my-route current-list
-
           set current-list my-route
-
           set changed True
-
           ask patch mouse-xcor mouse-ycor
           [
             set pcolor black
           ]
-
         ]
-
       ]
     ]
-
     if current-position != -1 and changed
     [
       set route-list replace-item current-position route-list current-list
@@ -167,19 +153,23 @@ to setup-agv
   set-default-shape agvs "truck"
   ask agvs [ die ]
   if count agvs != num_agv[
-    ask n-of num_agv (patches with [pcolor = yellow]) [sprout-agvs num_agv]
-    ask agvs [
+    ask n-of num_agv (patches with [pcolor = yellow]) [sprout-agvs 1 [
+      set charge 100
+      set current-location "buffer-zone"
       set size 2
       set color blue
     ]
+   ]
   ]
 
 end
 
+to go
+  let my-agv one-of agvs with [ current-location = agv-from ]
+  if my-agv != nobody [ move-agv-test my-agv agv-from agv-to ]
+end
 
-to move-agv-test
-  let from-location "buffer-zone"
-  let to-location "gate-1"
+to move-agv-test [ my-agv from-location to-location ]
   foreach route-list
   [
     [route] ->
@@ -187,12 +177,42 @@ to move-agv-test
      foreach item 1 route
       [
         [path]->
-        ask agvs [ move-to path ]
+        ask my-agv [ move-to path ]
         tick
       ]
+      move-inside my-agv to-location
+      stop
+    ]
+    if last route = from-location and first route = to-location [
+      foreach reverse item 1 route
+      [
+        [path]->
+        ask my-agv [ move-to path ]
+        tick
+      ]
+      move-inside my-agv to-location
+      stop
     ]
   ]
 end
+
+to move-inside [ my-agv to-location ]
+  ask my-agv [
+        set current-location to-location
+        (ifelse
+          current-location = "sorting-zone"
+          [
+            move-to one-of patches with [ pcolor = cyan ]
+          ]
+          current-location = "buffer-zone"
+          [
+            move-to one-of patches with [ pcolor = yellow ]
+          ]
+          []
+        )
+      ]
+end
+
 
 to draw-sorting-area
   if mouse-down?
@@ -219,10 +239,10 @@ to draw-charger-x         ;; get value of gate from chooserand then store as glo
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-388
-10
-773
-396
+395
+19
+1099
+405
 -1
 -1
 11.42424242424243
@@ -235,8 +255,8 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
+-30
+30
 -16
 16
 0
@@ -246,10 +266,10 @@ ticks
 30.0
 
 BUTTON
-57
-93
-199
-130
+44
+111
+186
+148
 NIL
 draw-buffer-zone
 T
@@ -263,10 +283,10 @@ NIL
 1
 
 BUTTON
-59
-47
-204
-80
+46
+65
+191
+98
 NIL
 setup
 NIL
@@ -280,10 +300,10 @@ NIL
 1
 
 BUTTON
-217
-246
-358
-279
+201
+254
+342
+287
 NIL
 patch-eraser
 T
@@ -297,30 +317,30 @@ NIL
 1
 
 CHOOSER
-64
-343
-205
-388
+46
+340
+187
+385
 from-route
 from-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-10
+11
 
 CHOOSER
-215
-344
-356
-389
+202
+340
+343
+385
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-1
+12
 
 BUTTON
-56
-138
-199
-176
+43
+156
+186
+194
 NIL
 draw-gate-x
 T
@@ -334,20 +354,20 @@ NIL
 1
 
 CHOOSER
-58
-182
-201
-227
+45
+200
+188
+245
 currently-drawing-gate
 currently-drawing-gate
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
-0
+3
 
 BUTTON
-214
-92
-356
-130
+201
+110
+343
+148
 NIL
 draw-sorting-area
 T
@@ -361,10 +381,10 @@ NIL
 1
 
 BUTTON
-216
-138
-356
-178
+201
+156
+344
+196
 NIL
 draw-charger-x
 T
@@ -378,20 +398,20 @@ NIL
 1
 
 CHOOSER
-216
-182
-358
-227
+199
+200
+345
+245
 currently-drawing-charger
 currently-drawing-charger
 "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-0
+3
 
 BUTTON
-59
-247
-201
-280
+45
+253
+187
+286
 NIL
 turtle-eraser
 T
@@ -405,10 +425,10 @@ NIL
 1
 
 BUTTON
-215
-304
-356
-337
+202
+297
+343
+330
 NIL
 draw-route-from-to
 T
@@ -422,10 +442,10 @@ NIL
 1
 
 BUTTON
-64
-303
-206
-336
+45
+296
+187
+329
 NIL
 create-route-from-to
 NIL
@@ -439,10 +459,10 @@ NIL
 1
 
 BUTTON
-209
-47
-290
-80
+202
+65
+283
+98
 setup-agv
 setup-agv
 NIL
@@ -456,23 +476,23 @@ NIL
 1
 
 INPUTBOX
-302
-18
-355
-78
+290
+32
+356
+98
 num_agv
-1.0
+4.0
 1
 0
 Number
 
 BUTTON
-75
-11
-138
-44
+47
+28
+110
+61
 go
-move-agv-test
+go
 NIL
 1
 T
@@ -482,6 +502,26 @@ NIL
 NIL
 NIL
 1
+
+CHOOSER
+428
+440
+566
+485
+agv-from
+agv-from
+"gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
+12
+
+CHOOSER
+593
+439
+731
+484
+agv-to
+agv-to
+"gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
