@@ -1,6 +1,6 @@
 breed [gates gate]
 breed [chargers charger]
-
+breed [agvs agv]
 
 gates-own [ number ]
 chargers-own [ number ]
@@ -142,6 +142,20 @@ to setup
   set route-list (list)
 end
 
+
+to setup-agv
+  set-default-shape agvs "truck"
+  ask agvs [ die ]
+  if count agvs != num_agv[
+    ask n-of num_agv (patches with [pcolor = yellow]) [sprout-agvs num_agv]
+    ask agvs [
+      set size 6
+      set color blue
+    ]
+  ]
+
+end
+
 to draw-sorting-area
   if mouse-down?
   [
@@ -167,13 +181,13 @@ to draw-charger-x         ;; get value of gate from chooserand then store as glo
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-447
-10
-942
-426
+381
+20
+841
+406
 -1
 -1
-4.03
+3.74
 1
 10
 1
@@ -194,10 +208,10 @@ ticks
 30.0
 
 BUTTON
-44
-33
-186
-70
+57
+93
+199
+130
 NIL
 draw-buffer-zone
 T
@@ -211,10 +225,10 @@ NIL
 1
 
 BUTTON
-243
-82
-309
-115
+59
+47
+204
+80
 NIL
 setup
 NIL
@@ -228,10 +242,10 @@ NIL
 1
 
 BUTTON
-239
-34
-342
-67
+217
+246
+358
+279
 NIL
 patch-eraser
 T
@@ -245,30 +259,30 @@ NIL
 1
 
 CHOOSER
-41
-355
-182
-400
+64
+343
+205
+388
 from-route
 from-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-0
+10
 
 CHOOSER
-270
-352
-411
-397
+215
+344
+356
+389
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-4
+1
 
 BUTTON
-45
-140
-188
-178
+56
+138
+199
+176
 NIL
 draw-gate-x
 T
@@ -282,20 +296,20 @@ NIL
 1
 
 CHOOSER
-242
-135
-413
-180
+58
+182
+201
+227
 currently-drawing-gate
 currently-drawing-gate
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
-2
+1
 
 BUTTON
-44
-86
-186
-124
+214
+92
+356
+130
 NIL
 draw-sorting-area
 T
@@ -309,10 +323,10 @@ NIL
 1
 
 BUTTON
-43
-207
-188
-247
+216
+138
+356
+178
 NIL
 draw-charger-x
 T
@@ -326,20 +340,20 @@ NIL
 1
 
 CHOOSER
-243
-204
-413
-249
+216
+182
+358
+227
 currently-drawing-charger
 currently-drawing-charger
 "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
 0
 
 BUTTON
-45
-263
-188
-306
+59
+247
+201
+280
 NIL
 turtle-eraser
 T
@@ -353,10 +367,10 @@ NIL
 1
 
 BUTTON
-250
-307
-408
-340
+215
+304
+356
+337
 NIL
 draw-route-from-to
 T
@@ -370,10 +384,10 @@ NIL
 1
 
 BUTTON
-247
-261
-413
-294
+64
+303
+206
+336
 NIL
 create-route-from-to
 NIL
@@ -385,6 +399,34 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+209
+47
+290
+80
+setup-agv
+setup-agv
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+INPUTBOX
+302
+18
+355
+78
+num_agv
+5.0
+1
+0
+Number
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -564,6 +606,13 @@ Circle -7500403 true true 96 51 108
 Circle -16777216 true false 113 68 74
 Polygon -10899396 true false 189 233 219 188 249 173 279 188 234 218
 Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
+
+guided
+true
+0
+Rectangle -6459832 true false 75 75 120 210
+Rectangle -7500403 true true 120 150 195 210
+Line -16777216 false 120 120 195 120
 
 house
 false
