@@ -28,6 +28,7 @@ to draw-gate-x         ;; get value of gate from chooserand then store as global
      create-gates 1 [
        setxy mouse-xcor mouse-ycor
        set shape "square"
+       set size 1.5
        set number currently-drawing-gate
        set color pink
       ]
@@ -38,7 +39,7 @@ end
 
 
 to create-route-from-to
-  let current-route (list from-route (list) to-route)
+  let current-route (list from-route (list) to-route) ;; [["buffer-zone",[],"gate-1"],["buffer-zone",[],"gate-1"],["buffer-zone",[],"gate-1"]] -> route-list
   set route-list lput current-route route-list
 end
 
@@ -113,13 +114,10 @@ end
 
 to loop-through-route [ current-patch ]
   let index 0
-  print length route-list
   loop [
     if index = length route-list [ stop ]
     let path item 1 (item index route-list)
-    print index
     set path remove current-patch path
-    print path
     let current-route replace-item 1 (item index route-list) path
     set route-list replace-item index route-list current-route
     print route-list
@@ -165,8 +163,59 @@ to setup-agv
 end
 
 to go
-  let my-agv one-of agvs with [ current-location = agv-from ]
-  if my-agv != nobody [ move-agv-test my-agv agv-from agv-to ]
+  let my-agvs agvs with [ current-location = agv-from ]
+  ;;if my-agv != nobody [ move-agv-test my-agv agv-from agv-to ]
+  ask my-agvs [ move-agv agv-from agv-to ]
+  tick
+end
+
+to move-agv [ from-location to-location ]
+  foreach route-list
+  [
+    [route] ->
+    if first route = from-location and last route = to-location[
+      let flag 0
+      foreach reverse item 1 route [
+        [path] ->
+          let temp 0
+          if path = patch-here [
+            set temp position path reverse item 1 route
+            set temp temp - 1
+            if temp = -1  [
+             move-inside self to-location
+             stop
+           ]
+            move-to item temp reverse item 1 route
+            set flag 1
+            stop
+          ]
+      ]
+        if flag = 0 [
+          move-to first item 1 route
+        ]
+    ]
+      if last route = from-location and first route = to-location [
+        let flag 0
+        foreach item 1 route [
+        [path] ->
+          let temp 0
+          if path = patch-here [
+            set temp position path item 1 route
+            set temp temp - 1
+            if temp = -1  [
+             move-inside self to-location
+             stop
+           ]
+            move-to item temp item 1 route
+           set flag 1
+            stop
+          ]
+      ]
+        if flag = 0 [
+          move-to last item 1 route
+        ]
+      ]
+  ]
 end
 
 to move-agv-test [ my-agv from-location to-location ]
@@ -230,6 +279,7 @@ to draw-charger-x         ;; get value of gate from chooserand then store as glo
      create-chargers 1 [
        setxy mouse-xcor mouse-ycor
        set shape "square"
+       set size 1.5
        set number currently-drawing-charger
        set color blue
       ]
@@ -324,7 +374,7 @@ CHOOSER
 from-route
 from-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-11
+10
 
 CHOOSER
 202
@@ -334,7 +384,7 @@ CHOOSER
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-12
+11
 
 BUTTON
 43
@@ -361,7 +411,7 @@ CHOOSER
 currently-drawing-gate
 currently-drawing-gate
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
-3
+2
 
 BUTTON
 201
@@ -405,7 +455,7 @@ CHOOSER
 currently-drawing-charger
 currently-drawing-charger
 "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-3
+0
 
 BUTTON
 45
@@ -481,7 +531,7 @@ INPUTBOX
 356
 98
 num_agv
-4.0
+2.0
 1
 0
 Number
@@ -511,7 +561,7 @@ CHOOSER
 agv-from
 agv-from
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-12
+10
 
 CHOOSER
 593
