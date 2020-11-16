@@ -186,6 +186,7 @@ to move-agv [ from-location to-location ]
              stop
            ]
             move-to item temp reverse item 1 route
+            set charge charge - 1
             set flag 1
             stop
           ]
@@ -207,7 +208,8 @@ to move-agv [ from-location to-location ]
              stop
            ]
             move-to item temp item 1 route
-           set flag 1
+            set charge charge - 1
+            set flag 1
             stop
           ]
       ]
@@ -575,8 +577,8 @@ agv-to
 
 BUTTON
 50
-407
-153
+402
+187
 440
 export-world
 export-world \"world.csv\"
@@ -592,9 +594,9 @@ NIL
 
 BUTTON
 202
-405
-303
-438
+402
+344
+441
 import-world
 import-world \"world.csv\"
 NIL
