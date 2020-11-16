@@ -598,7 +598,7 @@ BUTTON
 344
 441
 import-world
-import-world \"world.csv\"
+carefully [\n     import-world \"world.csv\"\n ][\n  print \"file does not exist\"\n ]
 NIL
 1
 T
