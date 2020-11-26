@@ -10,6 +10,7 @@ globals
 [
   test-variable
   route-list
+  pallets-at-buffer-zone
 ]
 
 to draw-buffer-zone
@@ -145,7 +146,7 @@ to setup
   ask patches [
     set pcolor grey - random-float 0.5
   ]
-
+  set pallets-at-buffer-zone 0
   set route-list (list)
 end
 
@@ -184,6 +185,21 @@ end
 to go
   main-logic
   tick
+end
+
+
+
+to spawn-pallets-at-buffer
+    if any? patches with [pcolor = yellow] [
+
+    let tick-value ticks
+
+    if remainder tick-value 100 = 0[
+      set pallets-at-buffer-zone pallets-at-buffer-zone + pallets-spawn-rate
+    ]
+  ]
+
+
 end
 
 to move-agv [ from-location to-location ]
@@ -538,7 +554,7 @@ BUTTON
 61
 go
 go
-NIL
+T
 1
 T
 OBSERVER
@@ -566,7 +582,7 @@ CHOOSER
 agv-to
 agv-to
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-11
+0
 
 BUTTON
 50
@@ -601,6 +617,32 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+116
+479
+288
+512
+pallets-spawn-rate
+pallets-spawn-rate
+0
+100
+1.0
+1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+1156
+129
+1259
+174
+Pallets At Buffer
+pallets-at-buffer-zone
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
