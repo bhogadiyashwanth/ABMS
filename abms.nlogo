@@ -2,8 +2,8 @@ breed [gates gate]
 breed [chargers charger]
 breed [agvs agv]
 
-agvs-own [ current-location charge ] ;;" gate-1 ", " sorting area "
-gates-own [ number ]
+agvs-own [ carrying-pallets free destination current-location charge ] ;;" gate-1 ", " sorting area "
+gates-own [ number pallets]
 chargers-own [ number ]
 
 globals
@@ -31,6 +31,7 @@ to draw-gate-x         ;; get value of gate from chooserand then store as global
        set size 1.5
        set number currently-drawing-gate
        set color pink
+       set pallets true
       ]
 
     stop
@@ -85,12 +86,14 @@ to draw-route-from-to
           ]
         ]
       ]
+      print(route-list)
     ]
     if current-position != -1 and changed
     [
       set route-list replace-item current-position route-list current-list
     ]
   ]
+
 end
 
 
@@ -156,20 +159,35 @@ to setup-agv
       set current-location "buffer-zone"
       set size 2
       set color blue
+      set free true
+      set destination ""
     ]
    ]
   ]
 
 end
 
+to main-logic
+  let gates_with_pallets gates with [ pallets = true ]
+  ask gates_with_pallets
+  [
+    let dummy number
+    set pallets false
+    let current-agv one-of agvs with [ free = true ]
+    ask current-agv [
+      set destination dummy
+      set free false
+  ]
+  ]
+  ask agvs [print(destination) move-agv current-location destination]
+end
 to go
-  let my-agvs agvs with [ current-location = agv-from ]
-  ;;if my-agv != nobody [ move-agv-test my-agv agv-from agv-to ]
-  ask my-agvs [ move-agv agv-from agv-to ]
+  main-logic
   tick
 end
 
 to move-agv [ from-location to-location ]
+  if to-location != "" [
   foreach route-list
   [
     [route] ->
@@ -218,32 +236,6 @@ to move-agv [ from-location to-location ]
         ]
       ]
   ]
-end
-
-to move-agv-test [ my-agv from-location to-location ]
-  foreach route-list
-  [
-    [route] ->
-    if first route = from-location and last route = to-location [
-     foreach item 1 route
-      [
-        [path]->
-        ask my-agv [ move-to path ]
-        tick
-      ]
-      move-inside my-agv to-location
-      stop
-    ]
-    if last route = from-location and first route = to-location [
-      foreach reverse item 1 route
-      [
-        [path]->
-        ask my-agv [ move-to path ]
-        tick
-      ]
-      move-inside my-agv to-location
-      stop
-    ]
   ]
 end
 
@@ -261,7 +253,8 @@ to move-inside [ my-agv to-location ]
           ]
           []
         )
-      ]
+         set destination ""
+  ]
 end
 
 
@@ -386,7 +379,7 @@ CHOOSER
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-11
+1
 
 BUTTON
 43
@@ -413,7 +406,7 @@ CHOOSER
 currently-drawing-gate
 currently-drawing-gate
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
-2
+1
 
 BUTTON
 201
