@@ -173,12 +173,14 @@ to main-logic
   ask gates_with_pallets
   [
     let dummy number
-    set pallets false
     let current-agv one-of agvs with [ free = true ]
+    if current-agv != nobody[
+    set pallets false
     ask current-agv [
       set destination dummy
       set free false
-  ]
+      ]
+    ]
   ]
   ask agvs [print(destination) move-agv current-location destination]
 end
