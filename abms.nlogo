@@ -2,15 +2,15 @@ breed [gates gate]
 breed [chargers charger]
 breed [agvs agv]
 
-agvs-own [ carrying-pallets free destination current-location charge ] ;;" gate-1 ", " sorting area "
-gates-own [ number pallets]
+agvs-own [ carrying-pallets free destination current-location charge capacity ] ;;" gate-1 ", " sorting area "
+gates-own [ number pallets pallets-present ]
 chargers-own [ number ]
 
 globals
 [
   test-variable
   route-list
-  pallets-at-buffer-zone
+  pallets-at-sorting-zone
 ]
 
 to draw-buffer-zone
@@ -33,6 +33,7 @@ to draw-gate-x         ;; get value of gate from chooserand then store as global
        set number currently-drawing-gate
        set color pink
        set pallets true
+      set pallets-present 0
       ]
 
     stop
@@ -146,12 +147,13 @@ to setup
   ask patches [
     set pcolor grey - random-float 0.5
   ]
-  set pallets-at-buffer-zone 0
+  set pallets-at-sorting-zone 0
   set route-list (list)
 end
 
 
 to setup-agv
+  reset-ticks
   set-default-shape agvs "truck"
   ask agvs [ die ]
   if count agvs != num_agv[
@@ -162,6 +164,7 @@ to setup-agv
       set color blue
       set free true
       set destination ""
+      set capacity 10
     ]
    ]
   ]
@@ -173,36 +176,75 @@ to main-logic
   ask gates_with_pallets
   [
     let dummy number
-    let current-agv one-of agvs with [ free = true ]
+    let current-agv one-of agvs with [ free = true and current-location = "buffer-zone" ]
     if current-agv != nobody[
     set pallets false
+    let pallets-picked 0
+    let dummy-pallets pallets-present
+
+
+
     ask current-agv [
+        if dummy-pallets > capacity [
+          set dummy-pallets capacity
+        ]
+      set pallets-picked dummy-pallets
+      set carrying-pallets pallets-picked
       set destination dummy
       set free false
       ]
+
+    if pallets-picked > 0 [
+        ifelse pallets-present - pallets-picked > 0 [
+          set pallets-present pallets-present - pallets-picked
+        ][
+          set pallets-picked pallets-present
+          set pallets-present 0
+        ]
+
+
     ]
+
+    ]
+
+
   ]
   ask agvs [print(destination) move-agv current-location destination]
 end
+
 to go
   main-logic
+  gate-to-sorting
+  sorting-to-buffer
+  pallets-spawing-at-gates
   tick
 end
 
+to sorting-to-buffer
+  ask agvs [ print(current-location) ]
+  ask agvs with [ current-location = "sorting-zone" ] [
+    set free true
+    move-agv current-location "buffer-zone"
+  ]
+end
+
+to gate-to-sorting
+  ask agvs with [ current-location = "gate-1" or current-location = "gate-2" or current-location = "gate-3" or current-location = "gate-4" or current-location = "gate-5" ] [
+    set pallets-at-sorting-zone pallets-at-sorting-zone + carrying-pallets
+    move-agv current-location "sorting-zone"
+  ]
+end
 
 
-to spawn-pallets-at-buffer
-    if any? patches with [pcolor = yellow] [
-
-    let tick-value ticks
-
-    if remainder tick-value 100 = 0[
-      set pallets-at-buffer-zone pallets-at-buffer-zone + pallets-spawn-rate
+to pallets-spawing-at-gates
+  if remainder ticks 150 = 0 [
+    ask gates [
+      set pallets true
+      set pallets-present pallets-present + pallets-spawn-rate
     ]
   ]
-
-
 end
+
 
 to move-agv [ from-location to-location ]
   if to-location != "" [
@@ -397,7 +439,7 @@ CHOOSER
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-1
+2
 
 BUTTON
 43
@@ -424,7 +466,7 @@ CHOOSER
 currently-drawing-gate
 currently-drawing-gate
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
-1
+2
 
 BUTTON
 201
@@ -584,7 +626,7 @@ CHOOSER
 agv-to
 agv-to
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-0
+11
 
 BUTTON
 50
@@ -629,7 +671,7 @@ pallets-spawn-rate
 pallets-spawn-rate
 0
 100
-1.0
+40.0
 1
 1
 NIL
@@ -638,10 +680,10 @@ HORIZONTAL
 MONITOR
 1156
 129
-1259
+1294
 174
-Pallets At Buffer
-pallets-at-buffer-zone
+Pallets At Sorting Area
+pallets-at-sorting-zone
 17
 1
 11
