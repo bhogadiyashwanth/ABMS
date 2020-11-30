@@ -586,7 +586,7 @@ INPUTBOX
 356
 98
 num_agv
-2.0
+4.0
 1
 0
 Number
@@ -671,7 +671,7 @@ pallets-spawn-rate
 pallets-spawn-rate
 0
 100
-40.0
+1.0
 1
 1
 NIL
