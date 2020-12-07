@@ -4,7 +4,7 @@ breed [agvs agv]
 
 agvs-own [ carrying-pallets free destination current-location charge capacity ] ;;" gate-1 ", " sorting area "
 gates-own [ number pallets pallets-present ]
-chargers-own [ number ]
+chargers-own [ number empty ]
 
 globals
 [
@@ -159,7 +159,7 @@ to setup-agv
   set pallets-at-sorting-zone 0
   if count agvs != num_agv[
     ask n-of num_agv (patches with [pcolor = yellow]) [sprout-agvs 1 [
-      set charge 100
+      set charge 120
       set current-location "buffer-zone"
       set size 2
       set color blue
@@ -173,13 +173,12 @@ to setup-agv
 end
 
 to main-logic
-  let gates_with_pallets gates with [ pallets = true ]
+  let gates_with_pallets gates with [ pallets-present > 0 ]
   ask gates_with_pallets
   [
     let dummy number
-    let current-agv one-of agvs with [ free = true and current-location = "buffer-zone" ]
+    let current-agv one-of agvs with [ free = true and current-location = "buffer-zone" and charge > 0 ]
     if current-agv != nobody[
-    set pallets false
     let pallets-picked 0
     let dummy-pallets pallets-present
 
@@ -189,22 +188,12 @@ to main-logic
         if dummy-pallets > capacity [
           set dummy-pallets capacity
         ]
-      set pallets-picked dummy-pallets
-      set carrying-pallets pallets-picked
-      set destination dummy
-      set free false
+        set pallets-picked dummy-pallets
+        set destination dummy
+        set free false
       ]
 
-    if pallets-picked > 0 [
-        ifelse pallets-present - pallets-picked > 0 [
-          set pallets-present pallets-present - pallets-picked
-        ][
-          set pallets-picked pallets-present
-          set pallets-present 0
-        ]
-
-
-    ]
+      set pallets-present pallets-present - pallets-picked
 
     ]
 
@@ -218,7 +207,20 @@ to go
   gate-to-sorting
   sorting-to-buffer
   pallets-spawing-at-gates
+;  charge-agvs
   tick
+end
+
+to charge-agvs
+  ask agvs with [ charge < 100 and current-location = "buffer-zone" ] [
+    let empty-charger one-of chargers with [ empty = true ]
+    let charge-location ""
+    ask empty-charger [
+      set empty false
+      set charge-location number
+    ]
+    move-agv current-location charge-location
+  ]
 end
 
 to sorting-to-buffer
@@ -231,16 +233,16 @@ end
 
 to gate-to-sorting
   ask agvs with [ current-location = "gate-1" or current-location = "gate-2" or current-location = "gate-3" or current-location = "gate-4" or current-location = "gate-5" ] [
-    set pallets-at-sorting-zone pallets-at-sorting-zone + carrying-pallets
+;    set pallets-at-sorting-zone pallets-at-sorting-zone + carrying-pallets
+;    set charge charge - 1
     move-agv current-location "sorting-zone"
   ]
 end
 
 
 to pallets-spawing-at-gates
-  if remainder ticks 150 = 0 [
+  if remainder ticks 250 = 0 [
     ask gates [
-      set pallets true
       set pallets-present pallets-present + pallets-spawn-rate
     ]
   ]
@@ -672,22 +674,65 @@ pallets-spawn-rate
 pallets-spawn-rate
 0
 100
-1.0
+20.0
 1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-1156
-129
-1294
-174
+1155
+59
+1293
+104
 Pallets At Sorting Area
 pallets-at-sorting-zone
 17
 1
 11
+
+MONITOR
+1118
+206
+1215
+251
+Pallets at Gate-1
+[pallets-present] of gates with [ number = \"gate-1\" ]
+17
+1
+11
+
+MONITOR
+1230
+206
+1327
+251
+Pallets at Gate-2
+[pallets-present] of gates with [ number = \"gate-2\" ]
+17
+1
+11
+
+MONITOR
+1179
+270
+1276
+315
+Pallets at Gate-3
+[pallets-present] of gates with [ number = \"gate-3\" ]
+17
+1
+11
+
+TEXTBOX
+1138
+178
+1321
+206
+Pallets Spawn at Every 250 Ticks
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
