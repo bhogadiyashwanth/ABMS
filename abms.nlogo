@@ -156,6 +156,7 @@ to setup-agv
   reset-ticks
   set-default-shape agvs "truck"
   ask agvs [ die ]
+  set pallets-at-sorting-zone 0
   if count agvs != num_agv[
     ask n-of num_agv (patches with [pcolor = yellow]) [sprout-agvs 1 [
       set charge 100
@@ -586,7 +587,7 @@ INPUTBOX
 356
 98
 num_agv
-4.0
+2.0
 1
 0
 Number
