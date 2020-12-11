@@ -177,7 +177,12 @@ to main-logic
   ask gates_with_pallets
   [
     let dummy number
-    let current-agv one-of agvs with [ free = true and current-location = "buffer-zone" and charge > 0 ]
+
+    let current-agv one-of agvs with [ free = true and current-location = "buffer-zone" and charge > calc-distance-agv dummy ]
+    ask agvs with [ charge < calc-distance-agv dummy ]
+    [
+      charge-agvs-main
+    ]
     if current-agv != nobody[
     let pallets-picked 0
     let dummy-pallets pallets-present
@@ -214,24 +219,31 @@ to go
   tick
 end
 
+to charge-agvs-main
+  let empty-charger one-of chargers with [ empty = true ]
+  let charge-location ""
+  if empty-charger != nobody
+  [
+    ask empty-charger [
+      set empty false
+      set charge-location number
+      ask myself [
+        set free false
+        set destination charge-location
+      ]
+    ]
+
+    ;      move-agv current-location charge-location
+  ]
+end
+
+
 to goto-charge-agvs
   ask agvs with [ charge < charge-threshold / 100 * full-charge and destination = "" and current-location = "buffer-zone" ] [
 
-    let empty-charger one-of chargers with [ empty = true ]
-    let charge-location ""
-    if empty-charger != nobody
-    [
-      ask empty-charger [
-        set empty false
-        set charge-location number
-        ask myself [
-          set free false
-          set destination charge-location
-        ]
-      ]
-
+    charge-agvs-main
 ;      move-agv current-location charge-location
-    ]
+
   ]
 end
 
@@ -247,6 +259,11 @@ to charge-agvs
       [
         set charge charge + 1
       ]
+    ]
+     if not any? agvs with [current-location = [number] of myself or destination = [number] of myself]
+    [
+      set empty true
+      print "HI"
     ]
   ]
 end
@@ -377,6 +394,33 @@ to draw-charger-x         ;; get value of gate from chooserand then store as glo
 
     stop
   ]
+end
+
+to-report calc-distance-agv [to-gate]
+  let total-length charge-threshold
+  foreach route-list
+  [
+    [route] ->
+   if first route = "buffer-zone" and last route = to-gate [
+     set total-length total-length + (length item 1 route)
+    ]
+   if last route = "buffer-zone" and first route = to-gate [
+     set total-length total-length + (length item 1 route)
+    ]
+    if last route = "sorting-zone" and first route = to-gate [
+     set total-length total-length + (length item 1 route)
+    ]
+    if first route = "sorting-zone" and last route = to-gate [
+     set total-length total-length + (length item 1 route)
+    ]
+    if first route = "sorting-zone" and last route = "buffer-zone" [
+     set total-length total-length + (length item 1 route)
+    ]
+    if last route = "sorting-zone" and first route = "buffer-zone" [
+     set total-length total-length + (length item 1 route)
+    ]
+  ]
+  report total-length
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -776,7 +820,7 @@ full-charge
 full-charge
 0
 200
-100.0
+200.0
 1
 1
 NIL
@@ -791,7 +835,7 @@ charge-threshold
 charge-threshold
 0
 100
-50.0
+22.0
 1
 1
 NIL
