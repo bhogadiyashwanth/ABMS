@@ -219,25 +219,24 @@ to goto-charge-agvs
     set free false
     let empty-charger one-of chargers with [ empty = true ]
     let charge-location ""
-    print "Hey"
-    print empty-charger
     if empty-charger != nobody
     [
       ask empty-charger [
-;        set empty false
+        set empty false
         set charge-location number
       ]
-      move-agv current-location charge-location
-      print "I'm trying to go to charger"
+;      move-agv current-location charge-location
+      set destination charge-location
     ]
   ]
 end
 
 to charge-agvs
   ask chargers with [ empty = false] [
-    ask agvs-here [
+    ask agvs with [ current-location = [number] of myself ] [
       ifelse charge >= full-charge [
-        move-agv current-location "buffer-zone"
+;        move-agv current-location "buffer-zone"
+        set destination "buffer-zone"
         set free true
         ask myself [ set empty true ]
       ]
@@ -344,9 +343,9 @@ to move-inside [ my-agv to-location ]
 
   ]
 
-  ask chargers with [ number = to-location ] [
-   set empty false
-  ]
+;  ask chargers with [ number = to-location ] [
+;   set empty false
+;  ]
 end
 
 
@@ -472,7 +471,7 @@ CHOOSER
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-2
+12
 
 BUTTON
 43
@@ -499,7 +498,7 @@ CHOOSER
 currently-drawing-gate
 currently-drawing-gate
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
-2
+0
 
 BUTTON
 201
