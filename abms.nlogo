@@ -217,11 +217,14 @@ to goto-charge-agvs
   ask agvs with [ charge < charge-threshold / 100 * full-charge and current-location = "buffer-zone" ] [
     let empty-charger one-of chargers with [ empty = true ]
     let charge-location ""
-    ask empty-charger [
-      set empty false
-      set charge-location number
+    if empty-charger != nobody
+    [
+      ask empty-charger [
+        set empty false
+        set charge-location number
+      ]
+      move-agv current-location charge-location
     ]
-    move-agv current-location charge-location
   ]
 end
 
@@ -457,7 +460,7 @@ CHOOSER
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-2
+13
 
 BUTTON
 43
