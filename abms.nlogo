@@ -217,13 +217,16 @@ to goto-charge-agvs
   ask agvs with [ charge < charge-threshold / 100 * full-charge and current-location = "buffer-zone" ] [
     let empty-charger one-of chargers with [ empty = true ]
     let charge-location ""
+    print "Hey"
+    print empty-charger
     if empty-charger != nobody
     [
       ask empty-charger [
-        set empty false
+;        set empty false
         set charge-location number
       ]
       move-agv current-location charge-location
+      print "I'm trying to go to charger"
     ]
   ]
 end
@@ -353,12 +356,13 @@ to draw-charger-x         ;; get value of gate from chooserand then store as glo
   if mouse-down?
   [
      create-chargers 1 [
-       setxy mouse-xcor mouse-ycor
-       set shape "square"
-       set size 1.5
-       set number currently-drawing-charger
-       set color blue
-      ]
+      setxy mouse-xcor mouse-ycor
+      set shape "square"
+      set size 1.5
+      set number currently-drawing-charger
+      set color blue
+      set empty true
+    ]
 
     stop
   ]
@@ -460,7 +464,7 @@ CHOOSER
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-13
+12
 
 BUTTON
 43
@@ -531,7 +535,7 @@ CHOOSER
 currently-drawing-charger
 currently-drawing-charger
 "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-1
+0
 
 BUTTON
 45
