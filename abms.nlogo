@@ -200,11 +200,11 @@ to main-logic
 
   ]
   ask agvs [print(destination) move-agv current-location destination]
-  goto-charge-agvs
-  charge-agvs
 end
 
 to go
+  goto-charge-agvs
+  charge-agvs
   main-logic
   gate-to-sorting
   sorting-to-buffer
@@ -215,8 +215,8 @@ to go
 end
 
 to goto-charge-agvs
-  ask agvs with [ charge < charge-threshold / 100 * full-charge and current-location = "buffer-zone" ] [
-    set free false
+  ask agvs with [ charge < charge-threshold / 100 * full-charge and destination = "" and current-location = "buffer-zone" ] [
+
     let empty-charger one-of chargers with [ empty = true ]
     let charge-location ""
     if empty-charger != nobody
@@ -224,9 +224,13 @@ to goto-charge-agvs
       ask empty-charger [
         set empty false
         set charge-location number
+        ask myself [
+          set free false
+          set destination charge-location
+        ]
       ]
+
 ;      move-agv current-location charge-location
-      set destination charge-location
     ]
   ]
 end
@@ -249,8 +253,7 @@ end
 to sorting-to-buffer
   ask agvs [ print(current-location) ]
   ask agvs with [ current-location = "sorting-zone" ] [
-    set free true
-    move-agv current-location "buffer-zone"
+    set destination "buffer-zone"
   ]
 end
 
@@ -258,7 +261,7 @@ to gate-to-sorting
   ask agvs with [ current-location = "gate-1" or current-location = "gate-2" or current-location = "gate-3" or current-location = "gate-4" or current-location = "gate-5" ] [
 ;    set pallets-at-sorting-zone pallets-at-sorting-zone + carrying-pallets
 ;    set charge charge - 1
-    move-agv current-location "sorting-zone"
+    set destination "sorting-zone"
   ]
 end
 
@@ -335,6 +338,7 @@ to move-inside [ my-agv to-location ]
           ]
           current-location = "buffer-zone"
           [
+            set free true
             move-to one-of patches with [ pcolor = yellow ]
           ]
           []
@@ -498,7 +502,7 @@ CHOOSER
 currently-drawing-gate
 currently-drawing-gate
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10"
-0
+2
 
 BUTTON
 201
