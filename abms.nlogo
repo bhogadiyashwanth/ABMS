@@ -207,12 +207,14 @@ to go
   gate-to-sorting
   sorting-to-buffer
   pallets-spawing-at-gates
-;  charge-agvs
+  goto-charge-agvs
+  charge-agvs
+
   tick
 end
 
-to charge-agvs
-  ask agvs with [ charge < 100 and current-location = "buffer-zone" ] [
+to goto-charge-agvs
+  ask agvs with [ charge < charge-threshold / 100 * full-charge and current-location = "buffer-zone" ] [
     let empty-charger one-of chargers with [ empty = true ]
     let charge-location ""
     ask empty-charger [
@@ -223,6 +225,19 @@ to charge-agvs
   ]
 end
 
+to charge-agvs
+  ask chargers with [ empty = false] [
+    ask agvs-here [
+      ifelse charge >= full-charge [
+        move-agv current-location "buffer-zone"
+        ask myself [ set empty true ]
+      ]
+      [
+        set charge charge + 1
+      ]
+    ]
+  ]
+end
 to sorting-to-buffer
   ask agvs [ print(current-location) ]
   ask agvs with [ current-location = "sorting-zone" ] [
@@ -513,7 +528,7 @@ CHOOSER
 currently-drawing-charger
 currently-drawing-charger
 "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-0
+1
 
 BUTTON
 45
@@ -733,6 +748,36 @@ Pallets Spawn at Every 250 Ticks
 11
 0.0
 1
+
+SLIDER
+866
+463
+1038
+496
+full-charge
+full-charge
+0
+200
+100.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1088
+468
+1260
+501
+charge-threshold
+charge-threshold
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
