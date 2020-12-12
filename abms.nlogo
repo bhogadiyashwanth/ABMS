@@ -198,14 +198,10 @@ to main-logic
         set destination dummy
         set free false
       ]
-
-      set pallets-present pallets-present - pallets-picked
-
+     set pallets-present pallets-present - pallets-picked
     ]
-
-
   ]
-  ask agvs [print(destination) move-agv current-location destination]
+  ask agvs [ move-agv current-location destination]
 end
 
 to go
@@ -520,7 +516,7 @@ CHOOSER
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-13
+12
 
 BUTTON
 43
@@ -591,7 +587,7 @@ CHOOSER
 currently-drawing-charger
 currently-drawing-charger
 "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-1
+0
 
 BUTTON
 45
@@ -667,7 +663,7 @@ INPUTBOX
 356
 98
 num_agv
-4.0
+2.0
 1
 0
 Number
@@ -752,7 +748,7 @@ pallets-spawn-rate
 pallets-spawn-rate
 0
 100
-20.0
+7.0
 1
 1
 NIL
@@ -821,7 +817,7 @@ full-charge
 full-charge
 0
 200
-200.0
+106.0
 1
 1
 NIL
