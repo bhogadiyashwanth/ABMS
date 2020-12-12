@@ -189,6 +189,7 @@ to main-logic
           set dummy-pallets capacity
         ]
         set pallets-picked dummy-pallets
+        set carrying-pallets dummy-pallets
         set destination dummy
         set free false
       ]
@@ -259,8 +260,6 @@ end
 
 to gate-to-sorting
   ask agvs with [ current-location = "gate-1" or current-location = "gate-2" or current-location = "gate-3" or current-location = "gate-4" or current-location = "gate-5" ] [
-;    set pallets-at-sorting-zone pallets-at-sorting-zone + carrying-pallets
-;    set charge charge - 1
     set destination "sorting-zone"
   ]
 end
@@ -334,6 +333,8 @@ to move-inside [ my-agv to-location ]
         (ifelse
           current-location = "sorting-zone"
           [
+            set pallets-at-sorting-zone pallets-at-sorting-zone + carrying-pallets
+            set carrying-pallets 0
             move-to one-of patches with [ pcolor = cyan ]
           ]
           current-location = "buffer-zone"
@@ -475,7 +476,7 @@ CHOOSER
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-12
+13
 
 BUTTON
 43
@@ -546,7 +547,7 @@ CHOOSER
 currently-drawing-charger
 currently-drawing-charger
 "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-0
+1
 
 BUTTON
 45
@@ -622,7 +623,7 @@ INPUTBOX
 356
 98
 num_agv
-2.0
+4.0
 1
 0
 Number
