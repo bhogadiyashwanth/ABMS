@@ -973,7 +973,7 @@ There are four monitors to show the count of unloaded pallets at soring zone, co
 
 Below is the plot for experiments that has benn conducted for 'world-2' layout in the model for different Number of AGVs (i.e., 3,5,9,20,35,40)
  ![Example](file:abms.png)
-From the plot, we can observe that at num_agv = 20 the number of ticks taken to process all the AGVs (i.e., pickup & drop pallets, go to charging stations, etc) is 832 which is the optimal one among the conducted experiments.
+From the plot, we can observe that at num_agv = 20 the number of ticks taken to process all the AGVs (i.e., pickup & drop pallets, go to charging stations, etc) is 832 which is the optimal one among the conducted experiments. After which the number of ticks is decreasing. This could be because on increasing the number of agvs, other resources (such as chargers and paths) are shared.
 
 
 ## THINGS TO TRY
