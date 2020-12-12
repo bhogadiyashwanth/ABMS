@@ -679,7 +679,7 @@ INPUTBOX
 356
 98
 num_agv
-2.0
+40.0
 1
 0
 Number
@@ -744,7 +744,7 @@ pallets-spawn-rate
 pallets-spawn-rate
 0
 100
-7.0
+52.0
 1
 1
 NIL
@@ -910,7 +910,7 @@ INPUTBOX
 556
 571
 SPAWN-TILL
-2000.0
+500.0
 1
 0
 Number
@@ -971,6 +971,11 @@ There are four monitors to show the count of unloaded pallets at soring zone, co
 * Even when the path from one location to another is in a circle the AGVs choose the shortest path.
 * As the number of AGVs is increased in the warehouse we can observe that for some number of AGVs the throughput is maximized for any particular layout.
 
+Below is the plot for experiments that has benn conducted for 'world-2' layout in the model for different Number of AGVs (i.e., 3,5,9,20,35,40)
+ ![Example](file:abms.png)
+From the plot, we can observe that at num_agv = 20 the number of ticks taken to process all the AGVs (i.e., pickup & drop pallets, go to charging stations, etc) is 832 which is the optimal one among the conducted experiments.
+
+
 ## THINGS TO TRY
 
 Try adjusting the parameters under various settings. How different factors are affecting the warehouse setup.
@@ -1001,8 +1006,13 @@ P. Ribino, M. Cossentino, C. Lodato, S. Lopes
 Agent-based simulation study for improving logistic warehouse performance
 J Simul, 12 (1) (2018), pp. 23-41, 10.1057/s41273-017-0055-z
 
-Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+Ito, T., & Mousavi Jahan Abadi, S. M. (2002). Agent-based material handling and inventory planning in warehouse. Journal of Intelligent Manufacturing, 13(3), 201–210. https://doi.org/10.1023/A:1015786822825
 
+Maka, A., Cupek, R., & Wierzchanowski, M. (2011). Agent-based modeling for warehouse logistics systems. Proceedings - 2011 UKSim 13th International Conference on Modelling and Simulation, UKSim 2011, 151–155. https://doi.org/10.1109/UKSIM.2011.37
+
+Taylor, P., Datta, P. P., Christopher, M., & Allen, P. (2007). A Leading Journal of Supply Chain Management Agent-based modelling of complex production / distribution systems to improve resilience. International Journal of Logistics Research: And Applications, 10(3), 187–203.
+
+Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
@@ -1320,6 +1330,47 @@ NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup
+import-world "world2.csv"
+setup-agv</setup>
+    <go>go</go>
+    <metric>ticks</metric>
+    <enumeratedValueSet variable="to-route">
+      <value value="&quot;sorting-zone&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="charge-threshold">
+      <value value="22"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num_agv">
+      <value value="3"/>
+      <value value="5"/>
+      <value value="9"/>
+      <value value="15"/>
+      <value value="25"/>
+      <value value="35"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="currently-drawing-gate">
+      <value value="&quot;gate-3&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="pallets-spawn-rate">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="currently-drawing-charger">
+      <value value="&quot;charger-5&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="full-charge">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPAWN-TILL">
+      <value value="500"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="from-route">
+      <value value="&quot;gate-1&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
