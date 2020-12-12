@@ -215,6 +215,7 @@ to go
   main-logic
   gate-to-sorting
   sorting-to-buffer
+  check-charge-capacity
 
   if ticks < SPAWN-TILL [
     pallets-spawing-at-gates
@@ -434,6 +435,17 @@ to-report calc-distance-agv [to-gate]
     ]
   ]
   report total-length
+end
+
+to check-charge-capacity
+  ask gates
+  [
+    if calc-distance-agv number >= full-charge
+    [
+      print "WARNING. Full charge is not sufficient to make a trip"
+      stop
+    ]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -679,7 +691,7 @@ INPUTBOX
 356
 98
 num_agv
-40.0
+2.0
 1
 0
 Number
@@ -744,7 +756,7 @@ pallets-spawn-rate
 pallets-spawn-rate
 0
 100
-52.0
+7.0
 1
 1
 NIL
