@@ -162,12 +162,17 @@ to setup-agv
       set charge 120
       set current-location "buffer-zone"
       set size 2
-      set color blue
+      let dum random 100
+      set color white - dum
+
       set free true
       set destination ""
-      set capacity 10
+      set capacity 30
     ]
    ]
+  ]
+  ask gates [
+    set pallets-present 100
   ]
 
 end
@@ -179,7 +184,7 @@ to main-logic
     let dummy number
 
     let current-agv one-of agvs with [ free = true and current-location = "buffer-zone" and charge > calc-distance-agv dummy ]
-    ask agvs with [ charge < calc-distance-agv dummy ]
+    ask agvs with [ charge < calc-distance-agv dummy and free = true ]
     [
       charge-agvs-main
     ]
@@ -210,9 +215,20 @@ to go
   main-logic
   gate-to-sorting
   sorting-to-buffer
-  pallets-spawing-at-gates
 
-
+  if ticks < SPAWN-TILL [
+    pallets-spawing-at-gates
+  ]
+  let dum1 0
+  ask gates [
+    set dum1 dum1 + pallets-present
+  ]
+  ifelse dum1 = 0 and ticks > SPAWN-TILL [
+    let agvs-dum agvs with [ current-location = "buffer-zone" and destination = "" ]
+    if count agvs-dum = num_agv [ stop ]
+  ][
+    set dum1 0
+  ]
   tick
 end
 
@@ -279,7 +295,7 @@ end
 
 
 to pallets-spawing-at-gates
-  if remainder ticks 250 = 0 [
+  if remainder ticks 150 = 0 [
     ask gates [
       set pallets-present pallets-present + pallets-spawn-rate
     ]
@@ -506,7 +522,7 @@ CHOOSER
 from-route
 from-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-10
+0
 
 CHOOSER
 202
@@ -516,7 +532,7 @@ CHOOSER
 to-route
 to-route
 "gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-12
+11
 
 BUTTON
 43
@@ -587,7 +603,7 @@ CHOOSER
 currently-drawing-charger
 currently-drawing-charger
 "charger-1" "charger-2" "charger-3" "charger-4" "charger-5" "charger-6" "charger-7" "charger-8" "charger-9" "charger-10"
-0
+4
 
 BUTTON
 45
@@ -685,33 +701,13 @@ NIL
 NIL
 1
 
-CHOOSER
-428
-440
-566
-485
-agv-from
-agv-from
-"gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-10
-
-CHOOSER
-593
-439
-731
-484
-agv-to
-agv-to
-"gate-1" "gate-2" "gate-3" "gate-4" "gate-5" "gate-6" "gate-7" "gate-8" "gate-9" "gate-10" "buffer-zone" "sorting-zone" "charging-zone"
-11
-
 BUTTON
 50
 402
 187
 440
-export-world
-export-world \"world.csv\"
+export-world-1
+export-world \"world1.csv\"
 NIL
 1
 T
@@ -727,8 +723,8 @@ BUTTON
 402
 344
 441
-import-world
-carefully [\n     import-world \"world.csv\"\n ][\n  print \"file does not exist\"\n ]
+import-world-1
+carefully [\n     import-world \"world1.csv\"\n ][\n  print \"file does not exist\"\n ]
 NIL
 1
 T
@@ -740,10 +736,10 @@ NIL
 1
 
 SLIDER
-116
-479
-288
-512
+398
+467
+570
+500
 pallets-spawn-rate
 pallets-spawn-rate
 0
@@ -755,10 +751,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-1155
-59
-1293
-104
+775
+412
+913
+457
 Pallets At Sorting Area
 pallets-at-sorting-zone
 17
@@ -766,10 +762,10 @@ pallets-at-sorting-zone
 11
 
 MONITOR
-1118
-206
-1215
-251
+670
+528
+767
+573
 Pallets at Gate-1
 [pallets-present] of gates with [ number = \"gate-1\" ]
 17
@@ -777,10 +773,10 @@ Pallets at Gate-1
 11
 
 MONITOR
-1230
-206
-1327
-251
+798
+530
+895
+575
 Pallets at Gate-2
 [pallets-present] of gates with [ number = \"gate-2\" ]
 17
@@ -788,10 +784,10 @@ Pallets at Gate-2
 11
 
 MONITOR
-1179
-270
-1276
-315
+930
+531
+1027
+576
 Pallets at Gate-3
 [pallets-present] of gates with [ number = \"gate-3\" ]
 17
@@ -799,35 +795,35 @@ Pallets at Gate-3
 11
 
 TEXTBOX
-1138
-178
-1321
-206
+745
+503
+928
+531
 Pallets Spawn at Every 250 Ticks
 11
 0.0
 1
 
 SLIDER
-866
-463
-1038
-496
+399
+421
+571
+454
 full-charge
 full-charge
 0
-200
-106.0
+400
+200.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1088
-468
-1260
-501
+578
+422
+750
+455
 charge-threshold
 charge-threshold
 0
@@ -838,42 +834,175 @@ charge-threshold
 NIL
 HORIZONTAL
 
+BUTTON
+205
+459
+343
+499
+import-world-2
+carefully [\n     import-world \"world2.csv\"\n ][\n  print \"file does not exist\"\n ]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+51
+460
+188
+500
+export-world-2
+export-world \"world2.csv\"
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+1124
+17
+1324
+167
+Pallet-Count
+ticks
+Pallets
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot pallets-at-sorting-zone"
+
+PLOT
+1201
+233
+1401
+383
+Throughput
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"thourghhgput" 1.0 0 -16777216 true "" "plot pallets-at-sorting-zone / (ticks + 1)"
+
+INPUTBOX
+401
+511
+556
+571
+SPAWN-TILL
+2000.0
+1
+0
+Number
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This model works as a tool that helps the user to build various layouts of warehouses. This can help him study the performances of warehouse under different setups and understand the factors that effect the warehouse. Hence, the model helps the user in cutting the cost it would take to experiment with all the entities involved in warehouse in real-time.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Our warehouse model involves the following entities -
+1. AGVs (Automated Guided Vehicles): These vehicles carry the pallets spawned at the unloading gates to the sorting area in a user-specified path. The AGVs are powered by electricity. The AGVs have a certain capacity of pallets that they can pick up at a time.
+
+2. Gates: These gates represent the unloading gates in an actual warehouse where trucks arrive and drop off pallets containing goods.
+
+3. Buffering Zone: When the AGVs are "free" i.e when they don't have any pallets to pick they wait in the buffering zone.
+
+4. Charging bays:  When the AGV's charge levels drop below a certain user-specified value they go to a charging bay that is empty and recharge their batteries there.
+
+The user has the ability to import a pre-existing model of a warehouse (could be their own warehouses) from a csv file. After changing a few parameters and deciding upon the setup they can export this layout to a csv file.
+
+The user has to initialize the values of certain variables and draw the paths from the buffering zone to charging bays, from the buffering zone to the sorting zone, the sorting zone to the unloading gates. The pallets are spawned at the gates at a certain rate and any AGV which is free (in the buffering zone or the ones which are not carrying any pallets at the moment) is assigned to a certain gate to pick up the pallets according to the capacity.
+
+The pallets are dropped off at the sorting zone for further processing (dispatch, transportation, etc)
+
+The AGVs calculate the charge required to carry pallets from the gate to the sorting zone and getting back to the buffer zone. The AGVs only move if they have the appropriate amount of charging left to make the round trip. Otherwise, they go to a charging bay which is free to recharge their batteries.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+1. Setup the area.
+2. Draw Buffer-Zone and Sorting-Zone using the drawing tool.
+3. Draw Gates and Charging Stations using the drawing tool.
+4. Draw routes from source(buffer-zone/sorting-zone/charging-station/gate) the 
+   destination(buffer-zone/sorting-zone/charging-station/gate).
+5. Input the number of AGVs required(num_agv).
+6. Adjust the slider parameters(full-charge, charge-threshold, pallets-spawn-rate).
+7. Look at the monitors to see palletes spawning at gates present.
+8. Look at the monitors to see count of unloaded pallets at the Sorting Zone.
+
+
+Parameter:
+num_agv: Number of AGVs for processing the pallets.
+full-charge : The maximum amount of charge that an AGV can attain.
+charge-threshold : The threshold at which the AGV goes to charging station for charging itself
+pallets-spawn-rate : The Rate at which the pallets spawn at the gates.
+SPAWN-TILL : Number of ticks till the spawing is active.
+
+Notes:
+- One unit of charge is deducted for every move an AGV does.
+- One unit of charge is increased upto "full-charge" when the AGV is at charging station.
+
+There are four monitors to show the count of unloaded pallets at soring zone, count of pallets present at gate-1, gate-2 and gate-3.
+
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+* Even when the path from one location to another is in a circle the AGVs choose the shortest path.
+* As the number of AGVs is increased in the warehouse we can observe that for some number of AGVs the throughput is maximized for any particular layout.
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Try adjusting the parameters under various settings. How different factors are affecting the warehouse setup.
+
+Try running the experiments on the specific warehouse by setting different number of AGVs("num_agv"). This may tell us the optimal number of AGVs required for the created setup.
+
+Try adding more complexiety or factors for charging stations that would decrease the charging time of AGV.
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+There are number of ways to add many features to the model. One of them could be independent spawing rate for each gate. 
+What happens when there are junctions for the routes?
+What happens when we add two way route from a single route?
+
 
 ## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+Note the use of breeds to model three different kinds of turtles (Gates, Charging Stations, AGVs). 
+Note the use of "mouse-down" that enables to draw the buffer-zone, sorting zone and other turtles.
+Note the use of "one-of" agentset reporter to select random AGV to pickup and drop the pallets.
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+Look at the Agent-based simulation study for improving logistic warehouse performance work which has been done for three specific layouts whereas our tool enables user to customize and build the warehouse layout of his own.
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+P. Ribino, M. Cossentino, C. Lodato, S. Lopes
+Agent-based simulation study for improving logistic warehouse performance
+J Simul, 12 (1) (2018), pp. 23-41, 10.1057/s41273-017-0055-z
+
+Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
 @#$#@#$#@
 default
 true
